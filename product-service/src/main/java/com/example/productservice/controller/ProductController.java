@@ -1,5 +1,6 @@
 package com.example.productservice.controller;
 
+import com.example.productservice.dto.ProductDTO;
 import com.example.productservice.model.Product;
 import com.example.productservice.service.ProductService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,10 +26,10 @@ public class ProductController {
             @RequestParam("product") String productJson
             ) {
         try {
-            Product product = objectMapper.readValue(productJson, Product.class);
-            Product saveProduct = productService.saveProduct(product, image);
+            ProductDTO product = objectMapper.readValue(productJson, ProductDTO.class);
+            Product newProduct = productService.saveProduct(product, image);
 
-            return ResponseEntity.ok(saveProduct);
+            return ResponseEntity.ok(newProduct);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("error: " + e.getMessage());
