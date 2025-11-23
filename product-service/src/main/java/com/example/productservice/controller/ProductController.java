@@ -48,6 +48,7 @@ public class ProductController {
         }
     }
 
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateProduct(
             @PathVariable Long id,
             @RequestParam(value = "image", required = false) MultipartFile image,
@@ -64,6 +65,7 @@ public class ProductController {
         }
     }
 
+    @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long id){
         productService.deleteProduct(id);
         return ResponseEntity.ok("Product is deleted");

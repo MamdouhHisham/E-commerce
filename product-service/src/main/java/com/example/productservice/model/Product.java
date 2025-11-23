@@ -21,7 +21,7 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name = "sku_code")
+    @Column(name = "sku_code", unique = true)
     private String skuCode;
 
     @ManyToOne(fetch = FetchType.EAGER)

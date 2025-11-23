@@ -52,6 +52,22 @@ public class ProductService {
         return productRepository.save(product);
     }
 
+    // private method for delete image from cloud
+    private void deleteImageFromCloud(String imageUrl){
+        try {
+            if(imageUrl == null || imageUrl.isEmpty()) return;
+
+            int lastSlashIdx = imageUrl.lastIndexOf("/");
+            int lastDotIdx = imageUrl.lastIndexOf(".");
+
+            String Id = imageUrl.substring(lastSlashIdx + 1, lastDotIdx);
+
+            cloudinary.uploader().destroy(Id, ObjectUtils.emptyMap());
+        } catch (IOException e){
+            System.err.println("Failed to delete image from cloud");
+        }
+    }
+
     public Product updateProduct(Long id, ProductDTO productDTO, MultipartFile image) throws IOException {
 
         Product current = getProductById(id);
@@ -68,6 +84,9 @@ public class ProductService {
         }
 
         if(image != null && !image.isEmpty()){
+
+            deleteImageFromCloud(current.getImageUrl());
+
             Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
             String imgUrl = (String) uploadResult.get("url");
             current.setImageUrl(imgUrl);
@@ -78,9 +97,9 @@ public class ProductService {
         return productRepository.save(current);
     }
 
-
-
     public void deleteProduct(Long id){
+        Product product = getProductById(id);
+        deleteImageFromCloud(product.getImageUrl());
         productRepository.deleteById(id);
     }
 }
