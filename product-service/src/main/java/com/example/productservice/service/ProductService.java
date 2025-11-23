@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -21,7 +22,16 @@ public class ProductService {
     private final CategoryService categoryService;
     private final Cloudinary cloudinary;
 
-    public Product saveProduct(ProductDTO productRequest, MultipartFile imageFile) throws IOException {
+    public Product getProductById(long id){
+        return productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    public List<Product> findAllProducts(){
+        return productRepository.findAll();
+    }
+
+    public Product addProduct(ProductDTO productRequest, MultipartFile image) throws IOException {
 
         Category category = categoryService.findCategoryById(productRequest.getCategoryId());
 
@@ -33,7 +43,7 @@ public class ProductService {
         product.setCategory(category);
 
         // creates the parameters for the upload
-        Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.emptyMap());
+        Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
 
         // extract and save the public url from response
         String imgUrl = (String) uploadResult.get("url");
@@ -42,8 +52,35 @@ public class ProductService {
         return productRepository.save(product);
     }
 
-    public Product getProductById(long id){
-        return productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+    public Product updateProduct(Long id, ProductDTO productDTO, MultipartFile image) throws IOException {
+
+        Product current = getProductById(id);
+
+        // update if data provided in DTO
+        if(productDTO.getName() != null) current.setName(productDTO.getName());
+        if(productDTO.getDescription() != null) current.setDescription(productDTO.getDescription());
+        if(productDTO.getPrice() > 0) current.setPrice(productDTO.getPrice());
+        if(productDTO.getSkuCode() != null) current.setSkuCode(productDTO.getSkuCode());
+
+        if(productDTO.getCategoryId() != null){
+            Category category = categoryService.findCategoryById(productDTO.getCategoryId());
+            current.setCategory(category);
+        }
+
+        if(image != null && !image.isEmpty()){
+            Map uploadResult = cloudinary.uploader().upload(image.getBytes(), ObjectUtils.emptyMap());
+            String imgUrl = (String) uploadResult.get("url");
+            current.setImageUrl(imgUrl);
+        }
+
+        // update quantity in inventory service
+
+        return productRepository.save(current);
+    }
+
+
+
+    public void deleteProduct(Long id){
+        productRepository.deleteById(id);
     }
 }

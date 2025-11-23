@@ -12,6 +12,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/product")
 @RequiredArgsConstructor
@@ -20,6 +22,16 @@ public class ProductController {
     private final ProductService productService;
     private final ObjectMapper objectMapper;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<Product> findProductById(@PathVariable Long id){
+        return ResponseEntity.ok(productService.getProductById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Product>> getAllProducts(){
+        return ResponseEntity.ok(productService.findAllProducts());
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProduct(
             @RequestParam("image")MultipartFile image,
@@ -27,13 +39,34 @@ public class ProductController {
             ) {
         try {
             ProductDTO product = objectMapper.readValue(productJson, ProductDTO.class);
-            Product newProduct = productService.saveProduct(product, image);
+            Product newProduct = productService.addProduct(product, image);
 
             return ResponseEntity.ok(newProduct);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("error: " + e.getMessage());
         }
+    }
+
+    public ResponseEntity<?> updateProduct(
+            @PathVariable Long id,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestParam("product") String productJson
+    ){
+        try {
+            ProductDTO productDTO = objectMapper.readValue(productJson, ProductDTO.class);
+            Product updateProduct = productService.updateProduct(id, productDTO, image);
+
+            return ResponseEntity.ok(updateProduct);
+        } catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body("error: " + e.getMessage());
+        }
+    }
+
+    public ResponseEntity<?> deleteProduct(@PathVariable Long id){
+        productService.deleteProduct(id);
+        return ResponseEntity.ok("Product is deleted");
     }
 
 }

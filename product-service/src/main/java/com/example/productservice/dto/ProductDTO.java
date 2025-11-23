@@ -9,4 +9,5 @@ public class ProductDTO {
     private double price;
     private String skuCode;
     private Long categoryId;
+    private Long quantity;
 }
