@@ -15,7 +15,7 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Inventory> findById(@PathVariable Long id){
+    public ResponseEntity<Inventory> findById(@PathVariable Long id) {
         return ResponseEntity.ok(inventoryService.findById(id));
     }
 

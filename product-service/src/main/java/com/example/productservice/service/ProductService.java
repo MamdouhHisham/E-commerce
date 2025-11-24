@@ -2,6 +2,7 @@ package com.example.productservice.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.productservice.client.InventoryClient;
 import com.example.productservice.dto.ProductDTO;
 import com.example.productservice.model.Category;
 import com.example.productservice.model.Product;
@@ -21,6 +22,7 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final CategoryService categoryService;
     private final Cloudinary cloudinary;
+    private final InventoryClient inventoryClient;
 
     public Product getProductById(long id){
         return productRepository.findById(id)
@@ -48,6 +50,9 @@ public class ProductService {
         // extract and save the public url from response
         String imgUrl = (String) uploadResult.get("url");
         product.setImageUrl(imgUrl);
+
+        // add product sku code and his quantity in inventory
+        inventoryClient.addProductToInventory(productRequest.getSkuCode(), productRequest.getQuantity());
 
         return productRepository.save(product);
     }
@@ -91,8 +96,6 @@ public class ProductService {
             String imgUrl = (String) uploadResult.get("url");
             current.setImageUrl(imgUrl);
         }
-
-        // update quantity in inventory service
 
         return productRepository.save(current);
     }

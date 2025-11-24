@@ -34,8 +34,8 @@ public class ProductController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addProduct(
-            @RequestParam("image")MultipartFile image,
-            @RequestParam("product") String productJson
+            @RequestPart("image")MultipartFile image,
+            @RequestPart("product") String productJson
             ) {
         try {
             ProductDTO product = objectMapper.readValue(productJson, ProductDTO.class);
