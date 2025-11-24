@@ -22,7 +22,7 @@ public class InventoryService {
         return inventoryRepository.findAll();
     }
 
-    public Inventory addProduct(String skuCode, Long quantity){
+    public Inventory addProductToInventory(String skuCode, Long quantity){
         Inventory current = new Inventory();
         current.setSkuCode(skuCode);
         current.setQuantity(quantity);
@@ -30,9 +30,9 @@ public class InventoryService {
         return inventoryRepository.save(current);
     }
 
-     public Inventory updateStorageQuantity(String skuCode, Long quantity){
-         if(inventoryRepository.existsByName(skuCode)){
-             Inventory inventory = inventoryRepository.findByName(skuCode);
+     public Inventory updateStorageQuantity(String skuCode ,Long quantity){
+         if(inventoryRepository.existsBySkuCode(skuCode)){
+             Inventory inventory = inventoryRepository.findBySkuCode(skuCode);
              inventory.setQuantity(quantity);
              return inventoryRepository.save(inventory);
          } else {
@@ -40,14 +40,18 @@ public class InventoryService {
          }
      }
 
-     public Inventory updateSkuCode(String skuCode){
-        if (inventoryRepository.existsByName(skuCode)){
-            Inventory inventory = inventoryRepository.findByName(skuCode);
-            inventory.setSkuCode(skuCode);
+     public Inventory updateSkuCode(String skuCode, String newSkuCode){
+        if (inventoryRepository.existsBySkuCode(skuCode)){
+            Inventory inventory = inventoryRepository.findBySkuCode(skuCode);
+            inventory.setSkuCode(newSkuCode);
             return inventoryRepository.save(inventory);
         } else {
             throw new RuntimeException("can't update sku code");
         }
+     }
+
+     public void deleteById(Long id){
+        inventoryRepository.deleteById(id);
      }
 
 }

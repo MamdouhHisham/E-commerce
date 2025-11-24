@@ -7,7 +7,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InventoryRepository extends JpaRepository<Inventory, Long> {
 
-    boolean existsByName(String name);
+    boolean existsBySkuCode(String skuCode);
 
-    Inventory findByName(String name);
+    Inventory findBySkuCode(String skuCode);
+
+    boolean existsBySkuCodeAndQuantityIsGreaterThanEqual(String skuCode, Long quantity);
 }
