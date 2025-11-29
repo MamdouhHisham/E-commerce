@@ -6,7 +6,8 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Entity(name = "order")
+@Entity()
+@Table(name = "t_orders")
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
