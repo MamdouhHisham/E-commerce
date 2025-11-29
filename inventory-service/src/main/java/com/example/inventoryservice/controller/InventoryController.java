@@ -1,11 +1,14 @@
 package com.example.inventoryservice.controller;
 
+import com.example.inventoryservice.dto.InventoryToOrderResponse;
 import com.example.inventoryservice.model.Inventory;
 import com.example.inventoryservice.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -41,5 +44,11 @@ public class InventoryController {
     public ResponseEntity<String> deleteById(@PathVariable Long id){
         inventoryService.deleteById(id);
         return ResponseEntity.ok("Inventory by Id: " + id + " is deleted");
+    }
+
+    @GetMapping("/is-in-stock")
+    public ResponseEntity<List<InventoryToOrderResponse>> isInStock(@RequestParam List<String> skuCode,
+                                                                    @RequestParam List<Integer> quantity){
+        return ResponseEntity.ok(inventoryService.isInStock(skuCode, quantity));
     }
 }

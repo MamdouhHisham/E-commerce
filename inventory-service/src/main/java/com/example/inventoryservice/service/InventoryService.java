@@ -1,5 +1,6 @@
 package com.example.inventoryservice.service;
 
+import com.example.inventoryservice.dto.InventoryToOrderResponse;
 import com.example.inventoryservice.exceptions.DuplicateResourceException;
 import com.example.inventoryservice.exceptions.ResourceNotFoundException;
 import com.example.inventoryservice.model.Inventory;
@@ -9,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,5 +97,22 @@ public class InventoryService {
          inventoryRepository.deleteById(id);
          log.info("Inventory record {} deleted successfully", id);
      }
+
+    public List<InventoryToOrderResponse> isInStock(List<String> skuCodes, List<Integer> quantities){
+        log.info("Checking stock for Sku codes: {}", skuCodes);
+
+        Map<String, Inventory> inventoryMap = inventoryRepository.findBySkuCodeIn(skuCodes).stream()
+                .collect(Collectors.toMap(Inventory::getSkuCode, inventory -> inventory));
+
+        return skuCodes.stream().map(skuCode -> {
+            Inventory inventory = inventoryMap.get(skuCode);
+            int requestQuantity = quantities.get(skuCodes.indexOf(skuCode));
+            boolean inStock = inventory != null && inventory.getQuantity()>= requestQuantity;
+            InventoryToOrderResponse response = new InventoryToOrderResponse();
+            response.setSkuCode(skuCode);
+            response.setIsInStock(inStock);
+            return response;
+        }).toList();
+    }
 
 }
