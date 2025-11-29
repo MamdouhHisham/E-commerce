@@ -3,7 +3,8 @@ package com.example.productservice.service;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.example.productservice.client.InventoryClient;
-import com.example.productservice.dto.ProductDTO;
+import com.example.productservice.dto.ProductRequest;
+import com.example.productservice.dto.ProductToOrderResponse;
 import com.example.productservice.exceptions.ResourceNotFoundException;
 import com.example.productservice.model.Category;
 import com.example.productservice.model.Product;
@@ -47,7 +48,22 @@ public class ProductService {
         return products;
     }
 
-    public Product addProduct(ProductDTO productRequest, MultipartFile image) throws IOException {
+    public List<ProductToOrderResponse> getProductsBySku(List<String> skuCodes){
+        log.info("Fetching products by SKU codes: {}", skuCodes);
+        return productRepository.findBySkuCodeIn(skuCodes)
+                .stream()
+                .map(this::mapToProductResponse)
+                .toList();
+    }
+
+    private ProductToOrderResponse mapToProductResponse(Product product){
+        ProductToOrderResponse response = new ProductToOrderResponse();
+        response.setSkuCode(product.getSkuCode());
+        response.setPrice(product.getPrice());
+        return response;
+    }
+
+    public Product addProduct(ProductRequest productRequest, MultipartFile image) throws IOException {
 
         log.info("Request to add new product: {}, SKU: {}", productRequest.getName(), productRequest.getSkuCode());
 
@@ -100,20 +116,20 @@ public class ProductService {
         }
     }
 
-    public Product updateProduct(Long id, ProductDTO productDTO, MultipartFile image) throws IOException {
+    public Product updateProduct(Long id, ProductRequest productRequest, MultipartFile image) throws IOException {
 
         log.info("Request to update product with ID: {}", id);
 
         Product current = getProductById(id); //
 
-        if(productDTO.getName() != null) current.setName(productDTO.getName());
-        if(productDTO.getDescription() != null) current.setDescription(productDTO.getDescription());
-        if(productDTO.getPrice() > 0) current.setPrice(productDTO.getPrice());
-        if(productDTO.getSkuCode() != null) current.setSkuCode(productDTO.getSkuCode());
+        if(productRequest.getName() != null) current.setName(productRequest.getName());
+        if(productRequest.getDescription() != null) current.setDescription(productRequest.getDescription());
+        if(productRequest.getPrice() > 0) current.setPrice(productRequest.getPrice());
+        if(productRequest.getSkuCode() != null) current.setSkuCode(productRequest.getSkuCode());
 
-        if(productDTO.getCategoryId() != null){
+        if(productRequest.getCategoryId() != null){
             log.debug("Updating category for product ID: {}", id);
-            Category category = categoryService.findCategoryById(productDTO.getCategoryId());
+            Category category = categoryService.findCategoryById(productRequest.getCategoryId());
             current.setCategory(category);
         }
 

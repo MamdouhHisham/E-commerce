@@ -1,6 +1,7 @@
 package com.example.productservice.controller;
 
-import com.example.productservice.dto.ProductDTO;
+import com.example.productservice.dto.ProductRequest;
+import com.example.productservice.dto.ProductToOrderResponse;
 import com.example.productservice.model.Product;
 import com.example.productservice.service.ProductService;
 import jakarta.validation.Valid;
@@ -30,10 +31,17 @@ public class ProductController {
         return ResponseEntity.ok(productService.findAllProducts());
     }
 
+    @GetMapping("/by-sku")
+    public ResponseEntity<List<ProductToOrderResponse>> getProductBySku(
+            @RequestParam("skuCodes") List<String> skuCodes
+    ) {
+        return ResponseEntity.ok(productService.getProductsBySku(skuCodes));
+    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Product> addProduct(
             @RequestPart("image")MultipartFile image,
-            @Valid @RequestPart("product") ProductDTO product
+            @Valid @RequestPart("product") ProductRequest product
     ) throws IOException {
         Product newProduct = productService.addProduct(product, image);
         return ResponseEntity.ok(newProduct);
@@ -43,9 +51,9 @@ public class ProductController {
     public ResponseEntity<Product> updateProduct(
             @PathVariable Long id,
             @RequestParam(value = "image", required = false) MultipartFile image,
-            @Valid @RequestPart("product") ProductDTO productDTO
+            @Valid @RequestPart("product") ProductRequest productRequest
     ) throws IOException {
-        Product updateProduct = productService.updateProduct(id, productDTO, image);
+        Product updateProduct = productService.updateProduct(id, productRequest, image);
         return ResponseEntity.ok(updateProduct);
     }
 

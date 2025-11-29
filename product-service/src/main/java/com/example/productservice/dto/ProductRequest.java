@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 @Data
-public class ProductDTO {
+public class ProductRequest {
     @NotBlank(message = "Product name cannot be blank") @NotEmpty
     private String name;
 
